@@ -1,4 +1,5 @@
 import boto3
+from botocore.config import Config
 import os
 from botocore.exceptions import ClientError
 import logging
@@ -13,14 +14,31 @@ class S3Client:
         self.aws_access_key = os.getenv("AWS_ACCESS_KEY_ID")
         self.aws_secret_key = os.getenv("AWS_SECRET_ACCESS_KEY")
         self.aws_region = os.getenv("AWS_DEFAULT_REGION", "us-east-1")
+        self.endpoint_url = os.getenv("AWS_ENDPOINT_URL")  # For MinIO/LocalStack
         
         # Initialize S3 client
-        self.s3_client = boto3.client(
-            's3',
-            aws_access_key_id=self.aws_access_key,
-            aws_secret_access_key=self.aws_secret_key,
-            region_name=self.aws_region
-        )
+        # If endpoint_url is set (e.g., for MinIO), use it
+        if self.endpoint_url:
+            # Using local S3-compatible service (MinIO/LocalStack)
+            self.s3_client = boto3.client(
+                's3',
+                endpoint_url=self.endpoint_url,
+                aws_access_key_id=self.aws_access_key,
+                aws_secret_access_key=self.aws_secret_key,
+                region_name=self.aws_region,
+                use_ssl=False,  # MinIO typically runs without SSL locally
+                config=Config(signature_version='s3v4')
+            )
+            logger.info(f"Using local S3 endpoint: {self.endpoint_url}")
+        else:
+            # Using real AWS S3
+            self.s3_client = boto3.client(
+                's3',
+                aws_access_key_id=self.aws_access_key,
+                aws_secret_access_key=self.aws_secret_key,
+                region_name=self.aws_region
+            )
+            logger.info("Using AWS S3")
     
     def download_file(self, bucket_name: str, s3_key: str, local_path: str) -> bool:
         """

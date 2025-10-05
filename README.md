@@ -9,6 +9,8 @@ A complete Docker-based project integrating FastAPI, Apache Airflow, and Postgre
 - **PostgreSQL**: Robust relational database
 - **Docker Compose**: Easy multi-container orchestration
 - **Redis**: Message broker for Airflow Celery executor
+- **AWS S3 Integration**: Download scripts from S3 (or use local MinIO)
+- **Local S3 Mode**: Test S3 features offline with MinIO (no AWS account needed!)
 
 ## 📁 Project Structure
 
@@ -36,6 +38,49 @@ Docker/
 - Docker Compose (version 2.0+)
 
 ## 🚀 Quick Start
+
+### Choose Your Mode:
+
+#### **Option A: Local Mode (No AWS needed!)** 🏠
+
+Perfect for development and testing without AWS credentials:
+
+```bash
+# Start with local MinIO (S3-compatible storage)
+make local
+
+# Or manually:
+docker-compose -f docker-compose.local.yml up -d
+```
+
+**Access Points:**
+- FastAPI: http://localhost:8000/docs
+- Airflow: http://localhost:8080 (admin/admin)
+- MinIO Web UI: http://localhost:9001 (minioadmin/minioadmin)
+
+📚 **See [LOCAL_S3_SETUP.md](LOCAL_S3_SETUP.md) for complete local setup guide**
+
+---
+
+#### **Option B: AWS Mode (Production)** ☁️
+
+Use real AWS S3 (requires AWS credentials):
+
+```bash
+# 1. Configure AWS credentials
+cp env.example .env
+# Edit .env with your AWS credentials
+
+# 2. Start services
+make up
+# Or: docker-compose up -d
+```
+
+📚 **See [AWS_SETUP.md](AWS_SETUP.md) for AWS configuration guide**
+
+---
+
+### Legacy Quick Start (Basic Setup)
 
 ### 1. Clone or Navigate to Project Directory
 

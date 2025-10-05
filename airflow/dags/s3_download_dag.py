@@ -29,6 +29,7 @@ def download_scripts_from_s3(**context):
         os.makedirs(local_download_path, exist_ok=True)
         
         # Initialize S3 Hook (uses 'aws_default' connection)
+        # This will automatically use endpoint_url if configured in the connection
         s3_hook = S3Hook(aws_conn_id='aws_default')
         
         # List all files in the bucket with the prefix
