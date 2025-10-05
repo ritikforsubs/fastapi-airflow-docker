@@ -34,6 +34,12 @@ services:
       POSTGRES_DB: appdb
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin123
+      # AWS Credentials
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-your_access_key}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-your_secret_key}
+      AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION:-us-east-1}
+      S3_BUCKET_NAME: ${S3_BUCKET_NAME:-your-bucket-name}
+      S3_SCRIPT_PREFIX: ${S3_SCRIPT_PREFIX:-scripts/}
     depends_on:
       postgres:
         condition: service_healthy
@@ -74,6 +80,12 @@ services:
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
       AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth'
       AIRFLOW__WEBSERVER__SECRET_KEY: 'airflow_secret_key_12345'
+      # AWS Credentials
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-your_access_key}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-your_secret_key}
+      AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION:-us-east-1}
+      S3_BUCKET_NAME: ${S3_BUCKET_NAME:-your-bucket-name}
+      S3_SCRIPT_PREFIX: ${S3_SCRIPT_PREFIX:-scripts/}
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - airflow_logs:/opt/airflow/logs
@@ -107,6 +119,12 @@ services:
       AIRFLOW__CORE__FERNET_KEY: 'UKMzEm3yIuFYEq1y3-2FxPNWSVwRASpahmQ9kQfEr8E='
       AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+      # AWS Credentials
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-your_access_key}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-your_secret_key}
+      AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION:-us-east-1}
+      S3_BUCKET_NAME: ${S3_BUCKET_NAME:-your-bucket-name}
+      S3_SCRIPT_PREFIX: ${S3_SCRIPT_PREFIX:-scripts/}
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - airflow_logs:/opt/airflow/logs
@@ -135,6 +153,12 @@ services:
       AIRFLOW__CORE__FERNET_KEY: 'UKMzEm3yIuFYEq1y3-2FxPNWSVwRASpahmQ9kQfEr8E='
       AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+      # AWS Credentials
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-your_access_key}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-your_secret_key}
+      AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION:-us-east-1}
+      S3_BUCKET_NAME: ${S3_BUCKET_NAME:-your-bucket-name}
+      S3_SCRIPT_PREFIX: ${S3_SCRIPT_PREFIX:-scripts/}
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - airflow_logs:/opt/airflow/logs
@@ -173,6 +197,9 @@ services:
           --conn-login 'admin' \
           --conn-password 'admin123' \
           --conn-port '5432' || true
+        airflow connections add 'aws_default' \
+          --conn-type 'aws' \
+          --conn-extra "{\"aws_access_key_id\":\"${AWS_ACCESS_KEY_ID}\",\"aws_secret_access_key\":\"${AWS_SECRET_ACCESS_KEY}\",\"region_name\":\"${AWS_DEFAULT_REGION}\"}" || true
     environment:
       AIRFLOW__CORE__EXECUTOR: CeleryExecutor
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://admin:admin123@postgres/appdb
@@ -180,6 +207,12 @@ services:
       AIRFLOW__CELERY__BROKER_URL: redis://redis:6379/0
       AIRFLOW__CORE__FERNET_KEY: 'UKMzEm3yIuFYEq1y3-2FxPNWSVwRASpahmQ9kQfEr8E='
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+      # AWS Credentials
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-your_access_key}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-your_secret_key}
+      AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION:-us-east-1}
+      S3_BUCKET_NAME: ${S3_BUCKET_NAME:-your-bucket-name}
+      S3_SCRIPT_PREFIX: ${S3_SCRIPT_PREFIX:-scripts/}
     depends_on:
       postgres:
         condition: service_healthy

@@ -4,6 +4,7 @@ from typing import List, Optional
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import os
+from aws_utils import S3Client
 
 app = FastAPI(title="FastAPI with Docker, Airflow & PostgreSQL")
 
@@ -150,4 +151,76 @@ async def delete_item(item_id: int):
         raise HTTPException(status_code=404, detail="Item not found")
     
     return {"message": f"Item {item_id} deleted successfully"}
+
+
+# AWS S3 Endpoints
+class S3DownloadRequest(BaseModel):
+    bucket_name: str
+    s3_key: str
+    local_path: Optional[str] = "/tmp"
+
+
+class S3ListRequest(BaseModel):
+    bucket_name: str
+    prefix: Optional[str] = ""
+
+
+@app.post("/s3/download-script")
+async def download_script_from_s3(request: S3DownloadRequest):
+    """Download a script from AWS S3"""
+    try:
+        s3_client = S3Client()
+        local_path = s3_client.download_script(
+            bucket_name=request.bucket_name,
+            script_key=request.s3_key,
+            local_dir=request.local_path
+        )
+        
+        if local_path:
+            return {
+                "message": "Script downloaded successfully",
+                "local_path": local_path,
+                "s3_path": f"s3://{request.bucket_name}/{request.s3_key}"
+            }
+        else:
+            raise HTTPException(status_code=500, detail="Failed to download script from S3")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"S3 download error: {str(e)}")
+
+
+@app.post("/s3/list-files")
+async def list_s3_files(request: S3ListRequest):
+    """List files in an S3 bucket"""
+    try:
+        s3_client = S3Client()
+        files = s3_client.list_files(
+            bucket_name=request.bucket_name,
+            prefix=request.prefix
+        )
+        
+        return {
+            "bucket": request.bucket_name,
+            "prefix": request.prefix,
+            "count": len(files),
+            "files": files
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"S3 list error: {str(e)}")
+
+
+@app.get("/s3/check/{bucket_name}/{s3_key:path}")
+async def check_s3_file_exists(bucket_name: str, s3_key: str):
+    """Check if a file exists in S3"""
+    try:
+        s3_client = S3Client()
+        exists = s3_client.file_exists(bucket_name, s3_key)
+        
+        return {
+            "bucket": bucket_name,
+            "key": s3_key,
+            "exists": exists,
+            "s3_path": f"s3://{bucket_name}/{s3_key}"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"S3 check error: {str(e)}")
 
