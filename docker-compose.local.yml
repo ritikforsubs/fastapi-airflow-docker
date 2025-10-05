@@ -210,6 +210,7 @@ services:
       - ./airflow/dags:/opt/airflow/dags
       - airflow_logs:/opt/airflow/logs
       - airflow_plugins:/opt/airflow/plugins
+      - ./downloads:/tmp/scripts  # Downloaded files will appear here on your local PC
     depends_on:
       postgres:
         condition: service_healthy
